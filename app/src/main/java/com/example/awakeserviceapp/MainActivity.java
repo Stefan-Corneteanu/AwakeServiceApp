@@ -10,14 +10,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private final long awaitTimeInMillis = 1000;
-    private AwakeService myService;
     private boolean isBound = false;
     private TextView awakeTextView;
+
+    private IAwakeInterface awakeInterface;
     private Intent serviceIntent;
 
     private Handler handler;
@@ -26,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private final ServiceConnection con = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            //cast the binder to MyBinder to have the possibility to call getService
-            AwakeService.MyBinder binder = (AwakeService.MyBinder) service;
-            myService = binder.getService();
+            awakeInterface = IAwakeInterface.Stub.asInterface(service);
             isBound = true;
             handler.post(timerRunnable);
         }
@@ -71,8 +73,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateAwakeTextView(){
         if (isBound){
-            long awakeSeconds = myService.getUptime();
-            awakeTextView.setText("Awake time: " + awakeSeconds + " seconds");
+            try{
+                long awakeSeconds = awakeInterface.getUptime();
+                long awakeHours = awakeSeconds / 3600;
+                awakeSeconds %= 3600;
+                long awakeMinutes = awakeSeconds / 60;
+                awakeSeconds %= 60;
+
+                awakeTextView.setText(String.format(Locale.getDefault(),"Awake time: %d hours, %d minutes and %d seconds", awakeHours, awakeMinutes, awakeSeconds));
+            }
+            catch(RemoteException ex){
+                ex.printStackTrace();
+            }
         }
     }
 }
