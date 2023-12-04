@@ -1,5 +1,5 @@
 // IAwakeInterface.aidl
-package com.example.awakeserviceapp;
+package com.example.upstats;
 
 // Declare any non-default types here with import statements
 

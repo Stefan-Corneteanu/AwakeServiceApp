@@ -13,6 +13,8 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.widget.TextView;
 
+import com.example.upstats.IAwakeInterface;
+
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        serviceIntent = new Intent(this, AwakeService.class);
-        startService(serviceIntent);
+        serviceIntent = new Intent();
+        serviceIntent.setComponent(new ComponentName("com.example.upstats","com.example.upstats.AwakeService"));
         bindService(serviceIntent, con, Context.BIND_AUTO_CREATE);
     }
 
@@ -68,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
             unbindService(con);
             isBound = false;
         }
-        stopService(serviceIntent);
     }
 
     private void updateAwakeTextView(){
